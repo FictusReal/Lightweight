@@ -1,38 +1,50 @@
 import * as React from 'react';
-import { BottomNavigation, Text } from 'react-native-paper';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+
+const Tab = createMaterialBottomTabNavigator();
+
 import Workouts from './Workouts.js';
 import Stats from './Stats.js';
 import Friends from './Friends.js';
 
 const FriendsRoute = () => <Friends/>;
-
 const WorkoutsRoute = () => <Workouts/>;
-
 const StatsRoute = () => <Stats/>;
 
+
 const NavBar = () => {
-  const [index, setIndex] = React.useState(0);
-  const [routes] = React.useState([
-    { key: 'friends', title: 'Friends', focusedIcon: 'account-group', unfocusedIcon: 'account-group-outline'},
-    { key: 'workouts', title: 'Workouts', focusedIcon: 'dumbbell' },
-    { key: 'stats', title: 'Stats', focusedIcon: 'chart-box', unfocusedIcon: 'chart-box-outline' },
-  ]);
-
-  const renderScene = BottomNavigation.SceneMap({
-    friends: FriendsRoute,
-    workouts: WorkoutsRoute,
-    stats: StatsRoute,
-  });
-
   return (
-    <BottomNavigation
-      navigationState={{ index, routes }}
-      onIndexChange={setIndex}
-      renderScene={renderScene}
-      compact={true}
+    <Tab.Navigator 
+      initialRouteName="Workout Routines"
       labeled={false}
-      shifting={true}
-    />
+    >
+      <Tab.Screen
+        options={{
+            tabBarIcon: ({ focused, color, size }) => {
+            let iconName = "account-group";
+            return <MaterialCommunityIcons name={iconName} size={24} color={color} />;
+          }
+        }}
+        name="Friends" component={FriendsRoute} />
+      <Tab.Screen 
+        options={{
+            tabBarIcon: ({ focused, color, size }) => {
+            let iconName = "weight-lifter";
+            return <MaterialCommunityIcons name={iconName} size={24} color={color} />;
+          }
+        }}
+        name="Workout Routines" component={WorkoutsRoute} />
+      <Tab.Screen 
+        options={{
+            tabBarIcon: ({ focused, color, size }) => {
+            let iconName = "account-group";
+            return <MaterialCommunityIcons name={iconName} size={24} color={color} />;
+          }
+        }}
+        name="Statistics" component={StatsRoute} />
+    </Tab.Navigator>
   );
 };
 

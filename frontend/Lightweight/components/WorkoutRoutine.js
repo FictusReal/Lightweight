@@ -1,15 +1,15 @@
+
 import * as React from 'react';
 import { ScrollView, View, Pressable } from 'react-native'
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { MD3DarkTheme, Provider as PaperProvider, Appbar, Card, Text, Button, Divider, Avatar, Portal } from 'react-native-paper';
 
-const Workouts = ({navigation, route}) => {
+const Workouts = () => {
     var workouts = [];
     var numWorkouts= 3;
 
 	for(let i = 0; i < numWorkouts; i++){
         workouts.push(
-        <Card key={i} style={{marginHorizontal: 15, marginVertical: 8}} onPress={() => console.log(`Go to Workout ${i+1}`)}>
+        <Card key={i} style={{marginHorizontal: 15, marginVertical: 8}} onPress={() => {console.log(`Go to workout ${i+1}'s page`);}}>
             <Card.Content>
                 <Text variant="titleLarge">Workout {i + 1}</Text>
             </Card.Content>
@@ -19,7 +19,7 @@ const Workouts = ({navigation, route}) => {
     return (
         <PaperProvider theme={MD3DarkTheme}>
         <Appbar.Header>
-            <Appbar.Content title="Workout Routines"/>
+            <Appbar.Content title=""/>
             <Pressable onPress={() => {console.log(`Go to user account`);}}>
                 <Avatar.Image style={{margin:15}} size={32} source={require('../assets/default_avatar.png')}/>
             </Pressable>
