@@ -48,6 +48,6 @@ func DBInit() {
 	//WriteUserToDatabase("Larry Wheels", friends, client)
 	println("In Database now")
 	//ReadUserFromDatabase("", "Larry Wheels", client)
-	WriteUserToDatabase("Ronnie Coleman", []string{}, []string{}, client)
+	// CreateUser("Ronnie Coleman", []string{}, []string{}, client)
 
 }

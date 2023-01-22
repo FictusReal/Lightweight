@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	// "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Restaurant struct {
@@ -61,6 +61,7 @@ func CreateUser(name string, friends []string, workouts []string, client *mongo.
 		Friends:  friends,
 		Workouts: workouts,
 	}
+	fmt.Println("FEKKK")
 	result, err := coll.InsertOne(context.TODO(), newUser)
 	if err != nil {
 		panic(err)
@@ -70,54 +71,39 @@ func CreateUser(name string, friends []string, workouts []string, client *mongo.
 	id := newId.(primitive.ObjectID)
 
 	userStruct := User{ID: id, Name: name, Friends: friends, Workouts: workouts}
+	fmt.Println(userStruct)
 	return userStruct
 }
 
-func ReadAllUsersFromDatabase(client *mongo.Client) {
+func GetUser(id string, client *mongo.Client) User {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(objID)
 	coll := client.Database("Lightweight").Collection("users")
-	//filter := bson.D{{"cuisine", "Hamburgers"}}
-	// filter :=
+	var yeeter User
+	err = coll.FindOne(context.TODO(), bson.D{{"_id", objID}}).Decode(&yeeter)
+	fmt.Println(yeeter)
+	return yeeter
+}
 
-	findOptions := options.Find()
-	findOptions.SetLimit(5)
-	//var result Restaurant
+func GetAllUsers(client *mongo.Client) []User{
+	coll := client.Database("Lightweight").Collection("users")
 	var results []User
-	//var result User
-	// err := coll.Find(context.TODO(), bson.D{{}}, findOptions).Decode(&result)
 	filter := bson.D{{}}
 	cursor, err := coll.Find(context.TODO(), filter)
-
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			// This error means your query did not match any documents.
-			return
+			panic(err)
 		}
 		panic(err)
 	}
-	// end findOne
-	fmt.Println(cursor)
-
 	if err = cursor.All(context.TODO(), &results); err != nil {
 		panic(err)
 	}
-
-	fmt.Println("DEFEK")
-	fmt.Println(results)
-
-	for _, result := range results {
-		cursor.Decode(&result)
-		output, err := json.MarshalIndent(result, "", "    ")
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("%s\n", output)
-	}
-
-	// output, err := json.MarshalIndent(result, "", "    ")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Printf("%s\n", output)
+	return results
 }
 
 func ReadUserFromDatabase(UID string, name string, client *mongo.Client) (Response []byte, err error) {
