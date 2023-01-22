@@ -1,0 +1,8 @@
+All ze routes:
+
+Home Page:
+/user/:id   -   Displays the user's routines (workouts)
+
+Friends Page:
+/user/:id/friends   -    Displays the names of the friends of the User
+/user/name/:name    -    Searches users by name

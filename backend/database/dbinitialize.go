@@ -4,32 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-// func DBInit() {
-// 	dsn := "postgresql://azaan:G5y2e6a8ojMkDnNoPA_tLA@sea-jackal-4744.6wr.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full"
-// 	ctx := context.Background()
-// 	conn, err := pgx.Connect(ctx, dsn)
-// 	defer conn.Close(context.Background())
-// 	if err != nil {
-// 		log.Fatal("failed to connect database", err)
-// 	}
-// 	//fmt.Println("WE Are NOW Initializing Databse!!!")
-
-// 	var now time.Time
-// 	err = conn.QueryRow(ctx, "SELECT NOW()").Scan(&now)
-// 	if err != nil {
-// 		log.Fatal("failed to execute query", err)
-// 	}
-
-// 	fmt.Println(now)
-
-// }
 
 func DBInit() {
 
@@ -54,5 +35,18 @@ func DBInit() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("RESULT!!!!!!")
+	fmt.Println(reflect.TypeOf(databases))
 	fmt.Println(databases)
+	fmt.Println(reflect.TypeOf(databases[2]))
+	fmt.Println(databases[3])
+	fmt.Println(databases[4])
+	fmt.Println(databases[1])
+
+	//TestReadDatabase(client)
+	// var friends []string
+	//WriteUserToDatabase("Larry Wheels", friends, client)
+	println("In Database now")
+	ReadUserFromDatabase("", "Larry Wheels", client)
+
 }

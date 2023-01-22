@@ -2,48 +2,151 @@ package database
 
 import (
 	"context"
-	"log"
+	"encoding/json"
+	"fmt"
 
 	//"os"
 
 	//"github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgx"
 
-	"github.com/jackc/pgx/v4"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func insertRows(ctx context.Context, tx pgx.Tx, user User) error {
-	// Insert four rows into the "accounts" table.
-	log.Println("Creating new rows...")
-	if _, err := tx.Exec(ctx,
-		"INSERT INTO users (id, display_name) VALUES ($1, $2)", user.ID, user.Name); err != nil {
-		return err
-	}
-	return nil
+type Restaurant struct {
+	ID           primitive.ObjectID `bson:"_id"`
+	Name         string
+	RestaurantId string `bson:"restaurant_id"`
+	Cuisine      string
+	Address      interface{}
+	Borough      string
+	Grades       interface{}
 }
 
-func printData(conn *pgx.Conn) error {
-	rows, err := conn.Query(context.Background(), "SELECT id, balance FROM accounts")
+func TestReadDatabase(client *mongo.Client) {
+
+	coll := client.Database("sample_restaurants").Collection("restaurants")
+	filter := bson.D{{"cuisine", "Hamburgers"}}
+
+	var result Restaurant
+	err := coll.FindOne(context.TODO(), filter).Decode(&result)
+
 	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var id string
-		var name string
-		if err := rows.Scan(&id, &name); err != nil {
-			log.Fatal(err)
+		if err == mongo.ErrNoDocuments {
+			// This error means your query did not match any documents.
+			return
 		}
-		log.Printf("%s: %s\n", id, name)
+		panic(err)
 	}
-	return nil
+	// end findOne
+
+	output, err := json.MarshalIndent(result, "", "    ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%s\n", output)
 }
 
-func deleteAccountRows(ctx context.Context, tx pgx.Tx, one string, two string) error {
-	// Delete two rows into the "accounts" table.
-	log.Printf("Deleting rows with IDs %s and %s...", one, two)
-	if _, err := tx.Exec(ctx,
-		"DELETE FROM accounts WHERE id IN ($1, $2)", one, two); err != nil {
-		return err
+// func()
+func WriteUserToDatabase(name string, friends []string, workouts []string, client *mongo.Client) {
+	coll := client.Database("Lightweight").Collection("users")
+	newUser := struct {
+		Name     string
+		Friends  []string
+		Workouts []string
+	}{
+		Name:     name,
+		Friends:  friends,
+		Workouts: workouts,
 	}
-	return nil
+	result, err := coll.InsertOne(context.TODO(), newUser)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result)
+
+}
+
+func ReadAllUsersFromDatabase(client *mongo.Client) {
+	coll := client.Database("Lightweight").Collection("users")
+	//filter := bson.D{{"cuisine", "Hamburgers"}}
+	// filter :=
+
+	findOptions := options.Find()
+	findOptions.SetLimit(5)
+	//var result Restaurant
+	var results []User
+	//var result User
+	// err := coll.Find(context.TODO(), bson.D{{}}, findOptions).Decode(&result)
+	filter := bson.D{{}}
+	cursor, err := coll.Find(context.TODO(), filter)
+
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			// This error means your query did not match any documents.
+			return
+		}
+		panic(err)
+	}
+	// end findOne
+	fmt.Println(cursor)
+
+	if err = cursor.All(context.TODO(), &results); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("DEFEK")
+	fmt.Println(results)
+
+	for _, result := range results {
+		cursor.Decode(&result)
+		output, err := json.MarshalIndent(result, "", "    ")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%s\n", output)
+	}
+
+	// output, err := json.MarshalIndent(result, "", "    ")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Printf("%s\n", output)
+}
+
+func ReadUserFromDatabase(UID string, name string, client *mongo.Client) (Response []byte, err error) {
+
+	var filter primitive.D
+	if UID == "" && name == "" { //empty strings no need for searching
+		return nil, nil
+	}
+	coll := client.Database("Lightweight").Collection("users")
+	if UID != "" && name == "" {
+		filter = bson.D{{"ID", UID}}
+		fmt.Println("UID")
+	} else if UID == "" && name != "" {
+		fmt.Println("NAMEEEEE")
+		filter = bson.D{{"name", name}}
+	} else {
+		filter = bson.D{{"name", name}, {"ID", UID}}
+	}
+
+	var result User
+	err = coll.FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			// This error means your query did not match any documents.
+			panic(err)
+			//return
+		}
+		panic(err)
+	}
+
+	returnVal, _ := json.Marshal(result)
+	fmt.Println(string(returnVal))
+
+	return returnVal, nil
+
 }
