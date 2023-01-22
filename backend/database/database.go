@@ -8,7 +8,7 @@ import (
 
 	//"github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgx"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v4"
 )
 
 func insertRows(ctx context.Context, tx pgx.Tx, user User) error {
@@ -21,7 +21,7 @@ func insertRows(ctx context.Context, tx pgx.Tx, user User) error {
 	return nil
 }
 
-func printBalances(conn *pgx.Conn) error {
+func printData(conn *pgx.Conn) error {
 	rows, err := conn.Query(context.Background(), "SELECT id, balance FROM accounts")
 	if err != nil {
 		log.Fatal(err)

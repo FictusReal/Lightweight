@@ -3,13 +3,15 @@ package main
 import (
 	"net/http"
 
-	dbinitialize "github.com/FictusReal/Lightweight/databaseInit"
+	//dbinitialize "github.com/FictusReal/Lightweight/backend/database/database"
+	"github.com/FictusReal/Lightweight/backend/database"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 
-	dbinitialize.DBInit()
+	//dbinitialize.DBInit()
+	database.DBInit()
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

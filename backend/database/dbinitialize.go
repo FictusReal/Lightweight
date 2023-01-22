@@ -2,11 +2,13 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"os"
+	"time"
 
-	"github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgx"
-	"github.com/jackc/pgx/v5"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // func DBInit() {
@@ -31,38 +33,26 @@ import (
 
 func DBInit() {
 
-	// Read in connection string
-	config, err := pgx.ParseConfig(os.Getenv("DATABASE_URL"))
+	/*
+	   Connect to my cluster
+	*/
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://FictusReal:wqjuGiZEEjYiO1p0@cluster0.qtyok13.mongodb.net/?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	config.RuntimeParams["application_name"] = "$ docs_simplecrud_gopgx"
-	conn, err := pgx.ConnectConfig(context.Background(), config)
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer conn.Close(context.Background())
+	defer client.Disconnect(ctx)
 
-	// Insert initial rows
-	var accounts User
-	// for i := 0; i < len(accounts); i++ {
-	// 	account
-	// }
-	accounts.ID = "1"
-	accounts.Name = "Zoeb"
-
-	err = crdbpgx.ExecuteTx(context.Background(), conn, pgx.TxOptions{}, func(tx pgx.Tx) error {
-		return insertRows(context.Background(), tx, accounts)
-	})
-
-	if err == nil {
-		log.Println("New rows created.")
-	} else {
-		log.Fatal("error: ", err)
+	/*
+	   List databases
+	*/
+	databases, err := client.ListDatabaseNames(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	// Print out the balances
-	log.Println("Initial balances:")
-	printBalances(conn)
-
+	fmt.Println(databases)
 }
