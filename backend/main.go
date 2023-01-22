@@ -18,5 +18,9 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	r.GET("/user/:id", getUserID)
+	r.POST("/login", authMe)
+	r.POST("/user/create", makeUser)
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

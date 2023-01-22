@@ -50,7 +50,7 @@ func TestReadDatabase(client *mongo.Client) {
 }
 
 // func()
-func WriteUserToDatabase(name string, friends []string, workouts []string, client *mongo.Client) {
+func CreateUser(name string, friends []string, workouts []string, client *mongo.Client) User {
 	coll := client.Database("Lightweight").Collection("users")
 	newUser := struct {
 		Name     string
@@ -65,8 +65,12 @@ func WriteUserToDatabase(name string, friends []string, workouts []string, clien
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(result)
 
+	newId := result.InsertedID
+	id := newId.(primitive.ObjectID)
+
+	userStruct := User{ID: id, Name: name, Friends: friends, Workouts: workouts}
+	return userStruct
 }
 
 func ReadAllUsersFromDatabase(client *mongo.Client) {

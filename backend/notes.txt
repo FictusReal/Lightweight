@@ -1,8 +1,23 @@
 All ze routes:
 
+POST /login   -   Login (authenticate)
+POST /user/create    -    create a user object
+PUT /user/:id/edit   -     Updates the user object (don't use it to update friend list)
+
 Home Page:
-/user/:id   -   Displays the user's routines (workouts)
+GET /user/:id   -   Displays the user's routines (workouts)
 
 Friends Page:
-/user/:id/friends   -    Displays the names of the friends of the User
-/user/name/:name    -    Searches users by name
+GET /user/:id/friend    -    Displays the names of the friends of the User
+GET /user/name/:name    -    Searches users by name
+GET /user/:id/friend/:friendID   -   Friend's user id
+GET /user/:id/friend/name/:name  -   Searches the user's friends by their name
+PUT /user/:id/friend/:friendId     -    Add friend
+Delete /user/:id/friend/:friendID  -    Remove friend
+
+Workouts:
+POST /user/:id/workout   -   Create a workout
+PUT /user/:id/workout/:workoutID  -  update workout
+DELTE /user/:id/workout/:workoutID - delete workout
+GET /user/:id/workout    -   Lists all the user's workouts
+GET /user/:id/workout/:workoutID  -  List one workout of the user

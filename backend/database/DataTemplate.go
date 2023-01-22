@@ -15,8 +15,8 @@ type Workout struct {
 }
 
 type User struct {
-	ID       string   `json:"id"`
-	Name     string   `json:"name"`
-	Friends  []string `json:"friends"`
-	Workouts []string `json:"workouts"`
+	ID       primitive.ObjectID `bson:"_id"`
+	Name     string             `json:"name"`
+	Friends  []string           `json:"friends"`
+	Workouts []string           `json:"workouts"`
 }

@@ -47,6 +47,7 @@ func DBInit() {
 	// var friends []string
 	//WriteUserToDatabase("Larry Wheels", friends, client)
 	println("In Database now")
-	ReadUserFromDatabase("", "Larry Wheels", client)
+	//ReadUserFromDatabase("", "Larry Wheels", client)
+	WriteUserToDatabase("Ronnie Coleman", []string{}, []string{}, client)
 
 }
