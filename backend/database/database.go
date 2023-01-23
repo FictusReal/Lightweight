@@ -75,6 +75,84 @@ func CreateUser(name string, friends []string, workouts []string, client *mongo.
 	return userStruct
 }
 
+func AddFriend(id string, friendID string, client *mongo.Client) int {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		panic(err)
+	}
+	friendObjID, fErr := primitive.ObjectIDFromHex(friendID)
+	if fErr != nil {
+		panic(fErr)
+	}
+	var user User
+	var friend User
+	coll := client.Database("Lightweight").Collection("users")
+	err = coll.FindOne(context.TODO(), bson.D{{"_id", objID}}).Decode(&user)
+	if err != nil {
+		return 404
+	}
+	err = coll.FindOne(context.TODO(), bson.D{{"_id", friendObjID}}).Decode(&friend)
+	if err != nil {
+		return 404
+	}
+	user.Friends = append(user.Friends, friendID)
+	friend.Friends = append(friend.Friends, id)
+	// remove(user.Friends, friendId)
+
+	update := bson.D{{"$set", bson.D{{"friends", user.Friends}}}}
+	result, err := coll.UpdateByID(context.TODO(), objID, update)
+	if err != nil {
+		panic(err)
+	}
+	update = bson.D{{"$set", bson.D{{"friends", friend.Friends}}}}
+	result, err = coll.UpdateByID(context.TODO(), friendObjID, update)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result)
+	return 200
+}
+
+func RemoveFriend(id string, friendID string, client *mongo.Client) int {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		panic(err)
+	}
+	friendObjID, fErr := primitive.ObjectIDFromHex(friendID)
+	if fErr != nil {
+		panic(fErr)
+	}
+	var user User
+	var friend User
+	coll := client.Database("Lightweight").Collection("users")
+	err = coll.FindOne(context.TODO(), bson.D{{"_id", objID}}).Decode(&user)
+	if err != nil {
+		return 404
+	}
+	err = coll.FindOne(context.TODO(), bson.D{{"_id", friendObjID}}).Decode(&friend)
+	if err != nil {
+		return 404
+	}
+
+	// user.Friends = append(user.Friends, friendID)
+	// friend.Friends = append(friend.Friends, id)
+	removeFriendFromList(&user.Friends, friendID)
+	removeFriendFromList(&friend.Friends, id)
+
+	update := bson.D{{"$set", bson.D{{"friends", user.Friends}}}}
+	result, err := coll.UpdateByID(context.TODO(), objID, update)
+	if err != nil {
+		panic(err)
+	}
+	update = bson.D{{"$set", bson.D{{"friends", friend.Friends}}}}
+	result, err = coll.UpdateByID(context.TODO(), friendObjID, update)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result)
+	return 200
+}
+
 func GetUser(id string, client *mongo.Client) User {
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -88,7 +166,7 @@ func GetUser(id string, client *mongo.Client) User {
 	return yeeter
 }
 
-func GetAllUsers(client *mongo.Client) []User{
+func GetAllUsers(client *mongo.Client) []User {
 	coll := client.Database("Lightweight").Collection("users")
 	var results []User
 	filter := bson.D{{}}
@@ -106,11 +184,11 @@ func GetAllUsers(client *mongo.Client) []User{
 	return results
 }
 
-func ReadUserFromDatabase(UID string, name string, client *mongo.Client) (Response []byte, err error) {
+func ReadUserFromDatabase(UID string, name string, client *mongo.Client) (Response User, err error) {
 
 	var filter primitive.D
 	if UID == "" && name == "" { //empty strings no need for searching
-		return nil, nil
+		return User{}, nil
 	}
 	coll := client.Database("Lightweight").Collection("users")
 	if UID != "" && name == "" {
@@ -134,9 +212,45 @@ func ReadUserFromDatabase(UID string, name string, client *mongo.Client) (Respon
 		panic(err)
 	}
 
-	returnVal, _ := json.Marshal(result)
-	fmt.Println(string(returnVal))
+	//returnVal, _ := json.Marshal(result) No need
+	returnVal := result
+	fmt.Println(returnVal)
 
 	return returnVal, nil
 
 }
+
+func removeFriendFromList(myFriendsList *[]string, ID string) {
+	var indexFound int = -1
+	var returnSlice []string
+	myFriends := *myFriendsList
+	for i := 0; i < len(myFriends); i++ {
+		if ID == myFriends[i] {
+			indexFound = i
+		}
+	}
+	// if indexFound > 0 && len(myFriends) <= 1 {
+	// 	returnSlice = []string{}
+	// }
+	if indexFound > 0 {
+		returnSlice = append(myFriends[:indexFound], myFriends[indexFound+1:]...)
+	}
+	if returnSlice == nil || len(returnSlice) <= 0 {
+		returnSlice = []string{}
+	}
+
+	*myFriendsList = returnSlice
+}
+
+// func getExercise(id string, client *mongo.Client) Exercise {
+// 	objID, err := primitive.ObjectIDFromHex(id)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	fmt.Println(objID)
+// 	coll := client.Database("Lightweight").Collection("exercises")
+// 	var yeeter User
+// 	err = coll.FindOne(context.TODO(), bson.D{{"_id", objID}}).Decode(&yeeter)
+// 	fmt.Println(yeeter)
+// 	return yeeter
+// }

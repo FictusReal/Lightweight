@@ -13,8 +13,8 @@ Friends Page:
 //GET /user/:id/friend    -    Displays the names of the friends of the User
 GET /user/name/:name    -    Searches users by name
 //GET /user/:id/friend/:friendID   -   Friend's user id
-PUT /user/:id/friend/:friendID     -    Add friend
-Delete /user/:id/friend/:friendID  -    Remove friend
+//PUT /user/:id/friend/:friendID     -    Add friend
+//Delete /user/:id/friend/:friendID  -    Remove friend
 
 Workouts:
 POST /user/:id/workout   -   Create a workout

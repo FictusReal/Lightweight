@@ -92,7 +92,7 @@ func main() {
 		c.JSON(200, name.Workouts)
 	})
 
-	r.GET("/user/:id/friends", func(c *gin.Context) {
+	r.GET("/user/:id/friend", func(c *gin.Context) {
 		var name database.User
 		id := c.Param("id")
 		fmt.Println(id)
@@ -104,12 +104,11 @@ func main() {
 		c.JSON(200, name.Friends)
 	})
 
-		//GET /user/:id
+	//GET /user/:id
 	r.GET("/user/:id/friend/:friendID", func(c *gin.Context) {
 		var name database.User
-		id := c.Param("friendID")
-		fmt.Println(id)
-		name = database.GetUser(id, client)
+		friendID := c.Param("friendID")
+		name = database.GetUser(friendID, client)
 		// json, err := database.ReadUserFromDatabase("", name.Name, client)
 		if err != nil {
 			panic(err)
@@ -117,20 +116,34 @@ func main() {
 		c.JSON(200, name)
 	})
 
-	//POST /user/:id/workout   -   Create a workout
-	r.POST("/user/:id/workout",func(c *gin.Context){
-		var req []string
-		c.BindJSON(&req)
-		var name database.User
+	r.PUT("/user/:id/friend/:friendID", func(c *gin.Context) {
 		id := c.Param("id")
-		fmt.Println(id)
-		name = database.GetUser(id, client)
-		// json, err := database.ReadUserFromDatabase("", name.Name, client)
-		if err != nil {
-			panic(err)
-		}
-		c.JSON(200, user)
+		friendID := c.Param("friendID")
+		statusCode := database.AddFriend(id, friendID, client)
+		c.JSON(statusCode, "")
 	})
+
+	r.DELETE("/user/:id/friend/:friendID", func(c *gin.Context) {
+		id := c.Param("id")
+		friendID := c.Param("friendID")
+		statusCode := database.RemoveFriend(id, friendID, client)
+		c.JSON(statusCode, "")
+	})
+
+	//POST /user/:id/workout   -   Create a workout
+	// r.POST("/user/:id/workout",func(c *gin.Context){
+	// 	var req []string
+	// 	c.BindJSON(&req)
+	// 	var name database.User
+	// 	id := c.Param("id")
+	// 	fmt.Println(id)
+	// 	name = database.GetUser(id, client)
+	// 	// json, err := database.ReadUserFromDatabase("", name.Name, client)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	c.JSON(200, user)
+	// })
 
 	// r.GET("/user/:id", getUserID)
 	// r.POST("/login", authMe)
